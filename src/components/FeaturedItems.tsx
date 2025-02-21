@@ -11,7 +11,7 @@ const featuredItems = [
     name: "Truffle Risotto",
     description: "Creamy Arborio rice with black truffle and Parmesan",
     price: "$28",
-    image: "https://images.unsplash.com/photo-1673419880490-31910b040db3",
+    image: "https://images.unsplash.com/photo-1481931098730-318b6f776db0?auto=format&fit=crop&w=800&q=80",
     badge: "Chef's Special"
   },
   {
@@ -19,7 +19,7 @@ const featuredItems = [
     name: "Wagyu Steak",
     description: "Premium Japanese A5 Wagyu with seasonal vegetables",
     price: "$85",
-    image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836",
+    image: "https://images.unsplash.com/photo-1546241072-48010ad2862c?auto=format&fit=crop&w=800&q=80",
     badge: "Premium"
   },
   {
@@ -27,7 +27,7 @@ const featuredItems = [
     name: "Seafood Platter",
     description: "Fresh daily selection of premium seafood",
     price: "$65",
-    image: "https://images.unsplash.com/photo-1534043464124-3be32fe000c9",
+    image: "https://images.unsplash.com/photo-1565680018434-b583c7dfb8c8?auto=format&fit=crop&w=800&q=80",
     badge: "New"
   },
   {
@@ -35,13 +35,18 @@ const featuredItems = [
     name: "Duck Confit",
     description: "Slow-cooked duck leg with orange glaze",
     price: "$42",
-    image: "https://images.unsplash.com/photo-1426869884541-df7117556757",
+    image: "https://images.unsplash.com/photo-1604909052743-94e838986d24?auto=format&fit=crop&w=800&q=80",
     badge: "Seasonal"
   }
 ];
 
 export const FeaturedItems = () => {
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    loop: true,
+    align: "start",
+    skipSnaps: false,
+    dragFree: true
+  });
   const [prevBtnEnabled, setPrevBtnEnabled] = useState(false);
   const [nextBtnEnabled, setNextBtnEnabled] = useState(false);
 
@@ -59,6 +64,11 @@ export const FeaturedItems = () => {
     onSelect();
     emblaApi.on("select", onSelect);
     emblaApi.on("reInit", onSelect);
+
+    return () => {
+      emblaApi.off("select", onSelect);
+      emblaApi.off("reInit", onSelect);
+    };
   }, [emblaApi, onSelect]);
 
   return (
@@ -89,20 +99,23 @@ export const FeaturedItems = () => {
                   viewport={{ once: true }}
                   className="min-w-[280px] sm:min-w-[380px] md:min-w-[400px] flex-[0_0_90%] sm:flex-[0_0_50%] md:flex-[0_0_40%] pl-4"
                 >
-                  <div className="h-full">
-                    <div className="relative h-64 mb-4 rounded-lg overflow-hidden group">
+                  <div className="h-full bg-background rounded-lg shadow-md overflow-hidden">
+                    <div className="relative h-64 mb-4 overflow-hidden group">
                       <img
                         src={item.image}
                         alt={item.name}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        loading="lazy"
                       />
                       <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-white text-sm">
                         {item.badge}
                       </div>
                     </div>
-                    <h3 className="text-xl font-semibold mb-2">{item.name}</h3>
-                    <p className="text-muted-foreground mb-3">{item.description}</p>
-                    <p className="text-lg font-semibold">{item.price}</p>
+                    <div className="p-4">
+                      <h3 className="text-xl font-semibold mb-2">{item.name}</h3>
+                      <p className="text-muted-foreground mb-3">{item.description}</p>
+                      <p className="text-lg font-semibold">{item.price}</p>
+                    </div>
                   </div>
                 </motion.div>
               ))}
