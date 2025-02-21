@@ -24,7 +24,7 @@ export const Navigation = () => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
         >
-          Culinary Canvas
+          Kaza Branka
         </motion.a>
 
         {/* Desktop Navigation */}
