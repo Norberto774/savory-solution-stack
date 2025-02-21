@@ -25,7 +25,7 @@ export const Hero = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          Culinary Canvas
+          Kaza Branka
         </motion.h1>
         
         <motion.p 
