@@ -4,8 +4,6 @@ import { Hero } from "@/components/Hero";
 import { Categories } from "@/components/Categories";
 import { motion } from "framer-motion";
 
-<lov-add-dependency>framer-motion@latest</lov-add-dependency>
-
 const Index = () => {
   return (
     <motion.div
