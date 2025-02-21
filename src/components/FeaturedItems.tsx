@@ -45,7 +45,8 @@ export const FeaturedItems = () => {
     loop: true,
     align: "start",
     skipSnaps: false,
-    dragFree: true
+    dragFree: true,
+    containScroll: "trimSnaps"
   });
   const [prevBtnEnabled, setPrevBtnEnabled] = useState(false);
   const [nextBtnEnabled, setNextBtnEnabled] = useState(false);
@@ -61,6 +62,7 @@ export const FeaturedItems = () => {
 
   useEffect(() => {
     if (!emblaApi) return;
+    
     onSelect();
     emblaApi.on("select", onSelect);
     emblaApi.on("reInit", onSelect);
