@@ -122,6 +122,13 @@ export const Menu = () => {
                 key={category}
                 variant={selectedCategory === category ? "default" : "outline"}
                 onClick={() => setSelectedCategory(category)}
+                className={
+                  category === "Main Dishes" ? "bg-blue-500 hover:bg-blue-600" :
+                  category === "Appetizers" ? "bg-green-500 hover:bg-green-600" :
+                  category === "Desserts" ? "bg-orange-500 hover:bg-orange-600" :
+                  category === "Beverages" ? "bg-teal-500 hover:bg-teal-600" :
+                  ""
+                }
               >
                 {category}
               </Button>
