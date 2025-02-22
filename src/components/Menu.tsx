@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { MenuItem } from "@/types/menu";
+import { MenuItem, CartItem } from "@/types/menu";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -11,14 +11,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
+import { ShoppingCart } from "lucide-react";
 
 export const Menu = () => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [categories, setCategories] = useState<string[]>([]);
+  const [cart, setCart] = useState<CartItem[]>([]);
 
   useEffect(() => {
     fetchMenuItems();
@@ -35,7 +38,6 @@ export const Menu = () => {
 
       if (data) {
         setMenuItems(data);
-        // Extract unique categories
         const uniqueCategories = [...new Set(data.map(item => item.category))];
         setCategories(uniqueCategories);
       }
@@ -46,6 +48,45 @@ export const Menu = () => {
       setLoading(false);
     }
   };
+
+  const addToCart = (item: MenuItem) => {
+    setCart(prevCart => {
+      const existingItem = prevCart.find(cartItem => cartItem.id === item.id);
+      
+      if (existingItem) {
+        return prevCart.map(cartItem =>
+          cartItem.id === item.id
+            ? { ...cartItem, quantity: cartItem.quantity + 1 }
+            : cartItem
+        );
+      }
+      
+      return [...prevCart, { ...item, quantity: 1 }];
+    });
+    
+    toast.success(`Added ${item.name} to cart`);
+  };
+
+  const removeFromCart = (itemId: number) => {
+    setCart(prevCart => {
+      const existingItem = prevCart.find(item => item.id === itemId);
+      
+      if (existingItem && existingItem.quantity > 1) {
+        return prevCart.map(item =>
+          item.id === itemId
+            ? { ...item, quantity: item.quantity - 1 }
+            : item
+        );
+      }
+      
+      return prevCart.filter(item => item.id !== itemId);
+    });
+  };
+
+  const cartTotal = cart.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0
+  );
 
   const filteredItems = selectedCategory === "all"
     ? menuItems
@@ -86,6 +127,73 @@ export const Menu = () => {
               </Button>
             ))}
           </div>
+
+          <div className="fixed bottom-4 right-4 z-50">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button className="rounded-full h-16 w-16 shadow-lg">
+                  <ShoppingCart className="h-6 w-6" />
+                  {cart.length > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full h-6 w-6 flex items-center justify-center text-sm">
+                      {cart.reduce((total, item) => total + item.quantity, 0)}
+                    </span>
+                  )}
+                </Button>
+              </SheetTrigger>
+              <SheetContent>
+                <SheetHeader>
+                  <SheetTitle>Your Cart</SheetTitle>
+                  <SheetDescription>
+                    Review your selected items
+                  </SheetDescription>
+                </SheetHeader>
+                <div className="mt-8">
+                  {cart.length === 0 ? (
+                    <p className="text-center text-muted-foreground">Your cart is empty</p>
+                  ) : (
+                    <>
+                      {cart.map((item) => (
+                        <div key={item.id} className="flex justify-between items-center py-4 border-b">
+                          <div>
+                            <h4 className="font-medium">{item.name}</h4>
+                            <p className="text-sm text-muted-foreground">
+                              {formatPrice(item.price)} × {item.quantity}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => removeFromCart(item.id)}
+                            >
+                              -
+                            </Button>
+                            <span>{item.quantity}</span>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => addToCart(item)}
+                            >
+                              +
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                      <div className="mt-4 pt-4 border-t">
+                        <div className="flex justify-between items-center font-medium">
+                          <span>Total</span>
+                          <span>{formatPrice(cartTotal)}</span>
+                        </div>
+                        <Button className="w-full mt-4">
+                          Checkout
+                        </Button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -116,13 +224,13 @@ export const Menu = () => {
                   <CardDescription>{item.category}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {item.description && <p className="text-muted-foreground">{item.description}</p>}
+                  {item.description && (
+                    <p className="text-muted-foreground">{item.description}</p>
+                  )}
                 </CardContent>
                 <CardFooter className="mt-auto flex justify-between items-center">
                   <span className="text-lg font-semibold">{formatPrice(item.price)}</span>
-                  <Button
-                    onClick={() => toast.success(`Added ${item.name} to cart`)}
-                  >
+                  <Button onClick={() => addToCart(item)}>
                     Add to Cart
                   </Button>
                 </CardFooter>
