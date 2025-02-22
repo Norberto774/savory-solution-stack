@@ -2,7 +2,7 @@
 import { Navigation } from "@/components/Navigation";
 import { Hero } from "@/components/Hero";
 import { Categories } from "@/components/Categories";
-import { FeaturedItems } from "@/components/FeaturedItems";
+import { Menu } from "@/components/Menu";
 import { motion } from "framer-motion";
 
 const Index = () => {
@@ -16,7 +16,7 @@ const Index = () => {
       <Navigation />
       <Hero />
       <Categories />
-      <FeaturedItems />
+      <Menu />
     </motion.div>
   );
 };
