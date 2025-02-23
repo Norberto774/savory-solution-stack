@@ -1,27 +1,19 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { MenuItem, CartItem } from "@/types/menu";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { MenuItem as MenuItemType, CartItem as CartItemType } from "@/types/menu";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { ShoppingCart } from "lucide-react";
+import { MenuItem } from "./menu/MenuItem";
+import { CategoryFilters } from "./menu/CategoryFilters";
+import { CartSheet } from "./menu/CartSheet";
 
 export const Menu = () => {
-  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [menuItems, setMenuItems] = useState<MenuItemType[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [categories, setCategories] = useState<string[]>([]);
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const [cart, setCart] = useState<CartItemType[]>([]);
 
   useEffect(() => {
     fetchMenuItems();
@@ -64,7 +56,7 @@ export const Menu = () => {
     }
   };
 
-  const addToCart = (item: MenuItem) => {
+  const addToCart = (item: MenuItemType) => {
     setCart(prevCart => {
       const existingItem = prevCart.find(cartItem => cartItem.id === item.id);
       
@@ -98,11 +90,6 @@ export const Menu = () => {
     });
   };
 
-  const cartTotal = cart.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0
-  );
-
   const filteredItems = selectedCategory === "all"
     ? menuItems
     : menuItems.filter(item => item.category === selectedCategory);
@@ -125,133 +112,32 @@ export const Menu = () => {
           className="text-center mb-8"
         >
           <h2 className="text-3xl font-bold mb-4">Our Menu</h2>
-          <div className="flex flex-wrap justify-center gap-2 mb-8">
-            <Button
-              variant={selectedCategory === "all" ? "default" : "outline"}
-              onClick={() => setSelectedCategory("all")}
-            >
-              All
-            </Button>
-            {categories.map((category) => (
-              <Button
-                key={category}
-                variant="outline"
-                onClick={() => setSelectedCategory(category)}
-                className={`${selectedCategory === category ? getCategoryStyle(category) : ""}`}
-              >
-                {category}
-              </Button>
-            ))}
-          </div>
+          <CategoryFilters
+            categories={categories}
+            selectedCategory={selectedCategory}
+            onCategorySelect={setSelectedCategory}
+            getCategoryStyle={getCategoryStyle}
+          />
 
           <div className="fixed bottom-4 right-4 z-50">
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button className="rounded-full h-16 w-16 shadow-lg">
-                  <ShoppingCart className="h-6 w-6" />
-                  {cart.length > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full h-6 w-6 flex items-center justify-center text-sm">
-                      {cart.reduce((total, item) => total + item.quantity, 0)}
-                    </span>
-                  )}
-                </Button>
-              </SheetTrigger>
-              <SheetContent>
-                <SheetHeader>
-                  <SheetTitle>Your Cart</SheetTitle>
-                  <SheetDescription>
-                    Review your selected items
-                  </SheetDescription>
-                </SheetHeader>
-                <div className="mt-8">
-                  {cart.length === 0 ? (
-                    <p className="text-center text-muted-foreground">Your cart is empty</p>
-                  ) : (
-                    <>
-                      {cart.map((item) => (
-                        <div key={item.id} className="flex justify-between items-center py-4 border-b">
-                          <div>
-                            <h4 className="font-medium">{item.name}</h4>
-                            <p className="text-sm text-muted-foreground">
-                              {formatPrice(item.price)} × {item.quantity}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => removeFromCart(item.id)}
-                            >
-                              -
-                            </Button>
-                            <span>{item.quantity}</span>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => addToCart(item)}
-                            >
-                              +
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                      <div className="mt-4 pt-4 border-t">
-                        <div className="flex justify-between items-center font-medium">
-                          <span>Total</span>
-                          <span>{formatPrice(cartTotal)}</span>
-                        </div>
-                        <Button className="w-full mt-4">
-                          Checkout
-                        </Button>
-                      </div>
-                    </>
-                  )}
-                </div>
-              </SheetContent>
-            </Sheet>
+            <CartSheet
+              cart={cart}
+              onAddToCart={addToCart}
+              onRemoveFromCart={removeFromCart}
+              formatPrice={formatPrice}
+            />
           </div>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredItems.map((item, index) => (
-            <motion.div
+            <MenuItem
               key={item.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-            >
-              <Card className="h-full flex flex-col">
-                {item.image_url && (
-                  <div className="relative h-48 overflow-hidden rounded-t-lg">
-                    <img
-                      src={item.image_url}
-                      alt={item.name}
-                      className="w-full h-full object-cover"
-                    />
-                    {item.popular && (
-                      <div className="absolute top-2 right-2 bg-primary text-primary-foreground px-2 py-1 rounded-full text-sm">
-                        Popular
-                      </div>
-                    )}
-                  </div>
-                )}
-                <CardHeader>
-                  <CardTitle>{item.name}</CardTitle>
-                  <CardDescription>{item.category}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {item.description && (
-                    <p className="text-muted-foreground">{item.description}</p>
-                  )}
-                </CardContent>
-                <CardFooter className="mt-auto flex justify-between items-center">
-                  <span className="text-lg font-semibold">{formatPrice(item.price)}</span>
-                  <Button onClick={() => addToCart(item)}>
-                    Add to Cart
-                  </Button>
-                </CardFooter>
-              </Card>
-            </motion.div>
+              item={item}
+              index={index}
+              onAddToCart={addToCart}
+              formatPrice={formatPrice}
+            />
           ))}
         </div>
       </div>
