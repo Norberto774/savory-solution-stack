@@ -4,15 +4,26 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { useAuth } from "@/contexts/AuthContext";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 export const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   const menuItems = [
     { name: "Menu", href: "#menu" },
     { name: "About", href: "#about" },
     { name: "Contact", href: "/contact" },
   ];
+
+  const handleSignOut = async () => {
+    await signOut();
+    toast.success("Signed out successfully");
+    navigate("/auth");
+  };
 
   return (
     <nav className="fixed top-0 w-full bg-background/80 backdrop-blur-md z-50 border-b">
@@ -41,6 +52,17 @@ export const Navigation = () => {
               {item.name}
             </motion.a>
           ))}
+          {user ? (
+            <>
+              <Button variant="outline" onClick={handleSignOut}>
+                Sign Out
+              </Button>
+            </>
+          ) : (
+            <Button variant="default" asChild>
+              <Link to="/auth">Sign In</Link>
+            </Button>
+          )}
           <Button variant="outline" size="icon">
             <ShoppingCart className="h-5 w-5" />
           </Button>
@@ -69,6 +91,17 @@ export const Navigation = () => {
                     {item.name}
                   </a>
                 ))}
+                {user ? (
+                  <Button variant="outline" onClick={handleSignOut}>
+                    Sign Out
+                  </Button>
+                ) : (
+                  <Button variant="default" asChild>
+                    <Link to="/auth" onClick={() => setIsOpen(false)}>
+                      Sign In
+                    </Link>
+                  </Button>
+                )}
               </div>
             </SheetContent>
           </Sheet>
