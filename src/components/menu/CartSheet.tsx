@@ -4,6 +4,11 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTr
 import { CartItem as CartItemType } from "@/types/menu";
 import { ShoppingCart } from "lucide-react";
 import { CartItem } from "./CartItem";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/lib/supabase";
+import { useState } from "react";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface CartSheetProps {
   cart: CartItemType[];
@@ -13,10 +18,56 @@ interface CartSheetProps {
 }
 
 export const CartSheet = ({ cart, onAddToCart, onRemoveFromCart, formatPrice }: CartSheetProps) => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  
   const cartTotal = cart.reduce(
     (total, item) => total + item.price * item.quantity,
     0
   );
+
+  const handleCheckout = async () => {
+    if (!user) {
+      toast.error("Please sign in to checkout");
+      navigate("/auth");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // First save the order
+      const { data: order, error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          user_id: user.id,
+          items: cart,
+          total: cartTotal,
+          status: 'pending'
+        })
+        .select()
+        .single();
+
+      if (orderError) throw orderError;
+
+      // Create Stripe checkout session
+      const { data: checkout, error: checkoutError } = await supabase.functions.invoke('create-checkout', {
+        body: { items: cart, userId: user.id }
+      });
+
+      if (checkoutError) throw checkoutError;
+
+      // Redirect to Stripe Checkout
+      if (checkout.url) {
+        window.location.href = checkout.url;
+      }
+    } catch (error: any) {
+      console.error('Checkout error:', error);
+      toast.error("Failed to create checkout session");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Sheet>
@@ -56,8 +107,12 @@ export const CartSheet = ({ cart, onAddToCart, onRemoveFromCart, formatPrice }: 
                   <span>Total</span>
                   <span>{formatPrice(cartTotal)}</span>
                 </div>
-                <Button className="w-full mt-4">
-                  Checkout
+                <Button 
+                  className="w-full mt-4"
+                  onClick={handleCheckout}
+                  disabled={loading}
+                >
+                  {loading ? "Processing..." : "Checkout"}
                 </Button>
               </div>
             </>
