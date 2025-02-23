@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { MenuItem, CartItem } from "@/types/menu";
@@ -26,6 +25,21 @@ export const Menu = () => {
   useEffect(() => {
     fetchMenuItems();
   }, []);
+
+  const getCategoryStyle = (category: string) => {
+    switch (category) {
+      case "Main Dishes":
+        return "bg-primary text-primary-foreground hover:bg-primary/90";
+      case "Appetizers":
+        return "bg-secondary text-secondary-foreground hover:bg-secondary/90";
+      case "Desserts":
+        return "bg-orange-500 text-white hover:bg-orange-600";
+      case "Beverages":
+        return "bg-teal-500 text-white hover:bg-teal-600";
+      default:
+        return "";
+    }
+  };
 
   const fetchMenuItems = async () => {
     try {
@@ -120,15 +134,9 @@ export const Menu = () => {
             {categories.map((category) => (
               <Button
                 key={category}
-                variant={selectedCategory === category ? "default" : "outline"}
+                variant="outline"
                 onClick={() => setSelectedCategory(category)}
-                className={
-                  category === "Main Dishes" ? "bg-blue-500 hover:bg-blue-600" :
-                  category === "Appetizers" ? "bg-green-500 hover:bg-green-600" :
-                  category === "Desserts" ? "bg-orange-500 hover:bg-orange-600" :
-                  category === "Beverages" ? "bg-teal-500 hover:bg-teal-600" :
-                  ""
-                }
+                className={`${selectedCategory === category ? getCategoryStyle(category) : ""}`}
               >
                 {category}
               </Button>
