@@ -28,19 +28,13 @@ export const CartSheet = ({ cart, onAddToCart, onRemoveFromCart, formatPrice }: 
   );
 
   const handleCheckout = async () => {
-    if (!user) {
-      toast.error("Please sign in to checkout");
-      navigate("/auth");
-      return;
-    }
-
     setLoading(true);
     try {
       // First save the order
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert({
-          user_id: user.id,
+          user_id: user?.id || null, // Allow anonymous orders
           items: cart,
           total: cartTotal,
           status: 'pending'
@@ -52,7 +46,7 @@ export const CartSheet = ({ cart, onAddToCart, onRemoveFromCart, formatPrice }: 
 
       // Create Stripe checkout session
       const { data: checkout, error: checkoutError } = await supabase.functions.invoke('create-checkout', {
-        body: { items: cart, userId: user.id }
+        body: { items: cart, userId: user?.id || null }
       });
 
       if (checkoutError) throw checkoutError;

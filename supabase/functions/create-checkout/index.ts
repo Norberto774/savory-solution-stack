@@ -22,7 +22,7 @@ serve(async (req) => {
 
     const { items, userId } = await req.json();
     
-    if (!items || !userId) {
+    if (!items) {
       throw new Error('Missing required fields');
     }
 
