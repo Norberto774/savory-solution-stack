@@ -35,9 +35,8 @@ export const Navigation = () => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
         >
-          {/* Replace with your logo URL */}
           <img 
-            src="/public/lovable-uploads/632241fc-ef34-4c10-b30a-6939ae3fb990.png" 
+            src="/lovable-uploads/632241fc-ef34-4c10-b30a-6939ae3fb990.png" 
             alt="Kaza Branka Logo" 
             className="h-10 w-auto"
             onError={(e) => {
