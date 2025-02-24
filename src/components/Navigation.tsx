@@ -30,12 +30,21 @@ export const Navigation = () => {
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <motion.a
           href="/"
-          className="text-xl font-semibold"
+          className="text-xl font-semibold flex items-center gap-2"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
         >
-          Kaza Branka
+          {/* Replace with your logo URL */}
+          <img 
+            src="/public/lovable-uploads/632241fc-ef34-4c10-b30a-6939ae3fb990.png" 
+            alt="Kaza Branka Logo" 
+            className="h-10 w-auto"
+            onError={(e) => {
+              e.currentTarget.src = '/placeholder.svg';
+              console.error('Error loading logo:', e);
+            }}
+          />
         </motion.a>
 
         {/* Desktop Navigation */}
