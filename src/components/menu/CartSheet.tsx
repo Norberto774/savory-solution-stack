@@ -21,6 +21,7 @@ export const CartSheet = ({ cart, onAddToCart, onRemoveFromCart, formatPrice }: 
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState("");
   
   const cartTotal = cart.reduce(
     (total, item) => total + item.price * item.quantity,
@@ -34,10 +35,11 @@ export const CartSheet = ({ cart, onAddToCart, onRemoveFromCart, formatPrice }: 
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert({
-          user_id: user?.id || null, // Allow anonymous orders
+          user_id: user?.id || null,
           items: cart,
           total: cartTotal,
-          status: 'pending'
+          status: 'pending',
+          customer_email: email || null
         })
         .select()
         .single();
@@ -46,7 +48,12 @@ export const CartSheet = ({ cart, onAddToCart, onRemoveFromCart, formatPrice }: 
 
       // Create Stripe checkout session
       const { data: checkout, error: checkoutError } = await supabase.functions.invoke('create-checkout', {
-        body: { items: cart, userId: user?.id || null }
+        body: { 
+          items: cart,
+          userId: user?.id || null,
+          orderReference: order.order_reference,
+          customerEmail: email || undefined
+        }
       });
 
       if (checkoutError) throw checkoutError;
@@ -100,6 +107,19 @@ export const CartSheet = ({ cart, onAddToCart, onRemoveFromCart, formatPrice }: 
                 <div className="flex justify-between items-center font-medium">
                   <span>Total</span>
                   <span>{formatPrice(cartTotal)}</span>
+                </div>
+                <div className="mt-4">
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                    Email (optional)
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    className="w-full px-3 py-2 border rounded-md"
+                    placeholder="Enter your email for order updates"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
                 </div>
                 <Button 
                   className="w-full mt-4"

@@ -8,6 +8,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+const USD_TO_CVE_RATE = 102.47; // Fixed conversion rate for example
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -20,12 +22,13 @@ serve(async (req) => {
       httpClient: Stripe.createFetchHttpClient(),
     });
 
-    const { items, userId } = await req.json();
+    const { items, userId, orderReference, customerEmail } = await req.json();
     
-    if (!items) {
+    if (!items || !orderReference) {
       throw new Error('Missing required fields');
     }
 
+    // Convert CVE prices to USD for Stripe (since Stripe doesn't support CVE)
     const lineItems = items.map((item: any) => ({
       price_data: {
         currency: 'usd',
@@ -33,7 +36,7 @@ serve(async (req) => {
           name: item.name,
           description: item.description || undefined,
         },
-        unit_amount: Math.round(item.price * 100), // Convert to cents
+        unit_amount: Math.round((item.price / USD_TO_CVE_RATE) * 100), // Convert CVE to USD cents
       },
       quantity: item.quantity,
     }));
@@ -43,11 +46,13 @@ serve(async (req) => {
       payment_method_types: ['card'],
       line_items: lineItems,
       mode: 'payment',
-      success_url: `${req.headers.get('origin')}/success?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${req.headers.get('origin')}/success?reference=${orderReference}`,
       cancel_url: `${req.headers.get('origin')}/cart`,
       metadata: {
         userId,
+        orderReference,
       },
+      ...(customerEmail && { customer_email: customerEmail }),
     });
 
     return new Response(
