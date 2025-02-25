@@ -25,25 +25,14 @@ const Index = () => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.6 }}
-      className="min-h-screen"
-    >
+    <div className="min-h-screen w-full">
       <Navigation />
       <Hero />
       <Categories />
       <Menu />
 
       {/* Contact Section */}
-      <motion.section
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        viewport={{ once: true }}
-        className="py-16 bg-muted"
-      >
+      <section className="py-16 bg-muted">
         <div className="container px-4">
           <div className="text-center mb-10">
             <h2 className="text-3xl font-bold mb-4">Contact Us</h2>
@@ -104,8 +93,8 @@ const Index = () => {
             </motion.div>
           </div>
         </div>
-      </motion.section>
-    </motion.div>
+      </section>
+    </div>
   );
 };
 
