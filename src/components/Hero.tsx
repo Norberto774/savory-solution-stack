@@ -5,7 +5,7 @@ import { ChevronDown } from "lucide-react";
 
 export const Hero = () => {
   return (
-    <section className="min-h-screen relative flex items-center justify-center overflow-hidden bg-[#111] text-white">
+    <section className="relative flex items-center justify-center overflow-hidden bg-[#111] text-white min-h-screen">
       <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1544025162-d76694265947')] bg-cover bg-center bg-no-repeat" />
       <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px]" />
       
@@ -43,14 +43,14 @@ export const Hero = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.6 }}
         >
-          <Button size="lg" className="bg-white text-black hover:bg-white/90">
+          <Button size="lg" variant="default" className="bg-white text-black hover:bg-white/90">
             Explore Menu
           </Button>
         </motion.div>
       </div>
 
       <motion.div 
-        className="absolute bottom-8 left-1/2 -translate-x-1/2"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.8 }}
