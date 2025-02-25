@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { MenuItem as MenuItemType, CartItem as CartItemType } from "@/types/menu";
@@ -15,7 +16,6 @@ export const Menu = () => {
   const [cart, setCart] = useState<CartItemType[]>([]);
 
   useEffect(() => {
-    console.log("Fetching menu items...");
     fetchMenuItems();
   }, []);
 
@@ -36,33 +36,29 @@ export const Menu = () => {
 
   const fetchMenuItems = async () => {
     try {
-      console.log("Starting API call to fetch menu items...");
       const { data, error } = await supabase
         .from("menu_items")
         .select("*")
         .order("category", { ascending: true });
 
       if (error) {
-        console.error("Supabase error:", error);
+        console.error("Error fetching menu items:", error);
         toast.error("Failed to load menu items");
-        setMenuItems([]);
+        setMenuItems([]); // Set empty array as fallback
         return;
       }
 
-      console.log("Menu items fetched successfully:", data);
       if (data) {
         setMenuItems(data);
         const uniqueCategories = [...new Set(data.map(item => item.category))];
         setCategories(uniqueCategories);
-        console.log("Categories set:", uniqueCategories);
       }
     } catch (error) {
-      console.error("Unexpected error:", error);
+      console.error("Error fetching menu items:", error);
       toast.error("Failed to load menu items");
-      setMenuItems([]);
+      setMenuItems([]); // Set empty array as fallback
     } finally {
       setLoading(false);
-      console.log("Menu loading completed");
     }
   };
 
