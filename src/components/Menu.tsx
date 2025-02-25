@@ -41,7 +41,12 @@ export const Menu = () => {
         .select("*")
         .order("category", { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching menu items:", error);
+        toast.error("Failed to load menu items");
+        setMenuItems([]); // Set empty array as fallback
+        return;
+      }
 
       if (data) {
         setMenuItems(data);
@@ -51,6 +56,7 @@ export const Menu = () => {
     } catch (error) {
       console.error("Error fetching menu items:", error);
       toast.error("Failed to load menu items");
+      setMenuItems([]); // Set empty array as fallback
     } finally {
       setLoading(false);
     }
@@ -99,11 +105,15 @@ export const Menu = () => {
   };
 
   if (loading) {
-    return <div className="flex justify-center p-8">Loading menu...</div>;
+    return (
+      <div className="flex justify-center items-center min-h-[200px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
   return (
-    <section className="py-12 bg-background">
+    <section className="py-12 bg-background" id="menu">
       <div className="container px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -118,15 +128,6 @@ export const Menu = () => {
             onCategorySelect={setSelectedCategory}
             getCategoryStyle={getCategoryStyle}
           />
-
-          <div className="fixed bottom-4 right-4 z-50">
-            <CartSheet
-              cart={cart}
-              onAddToCart={addToCart}
-              onRemoveFromCart={removeFromCart}
-              formatPrice={formatPrice}
-            />
-          </div>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -139,6 +140,15 @@ export const Menu = () => {
               formatPrice={formatPrice}
             />
           ))}
+        </div>
+
+        <div className="fixed bottom-4 right-4 z-50">
+          <CartSheet
+            cart={cart}
+            onAddToCart={addToCart}
+            onRemoveFromCart={removeFromCart}
+            formatPrice={formatPrice}
+          />
         </div>
       </div>
     </section>
