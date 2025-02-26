@@ -5,7 +5,7 @@ import Auth from "@/pages/Auth";
 import NotFound from "@/pages/NotFound";
 import { Success } from "@/pages/Success";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { Toaster } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 import "./App.css";
 
 function App() {
