@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@13.3.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.0";
@@ -8,7 +7,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const USD_TO_CVE_RATE = 102.47; // Fixed conversion rate for example
+// Fixed conversion rate for example (keep this updated based on current rates)
+const USD_TO_CVE_RATE = 102.47;
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -62,7 +62,7 @@ serve(async (req) => {
         status: 200,
       }
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
